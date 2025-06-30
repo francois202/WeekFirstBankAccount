@@ -19,4 +19,10 @@ public class Transaction {
         this.sourceAccount = sourceAccount;
         this.targetAccount = targetAccount;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s || %s || %s || %s || %s || %s",
+                id, amount, type, date, sourceAccount.getOwner(), targetAccount.getOwner());
+    }
 }

@@ -1,5 +1,6 @@
 package org.example;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class User {
@@ -10,6 +11,7 @@ public class User {
     public User(String id, String name) {
         this.id = id;
         this.name = name;
+        this.accounts = new ArrayList<>();
     }
 
     public void addAccount(BankAccount account) {
@@ -18,5 +20,9 @@ public class User {
 
     public List<BankAccount> getAccounts() {
         return accounts;
+    }
+
+    public String getName() {
+        return name;
     }
 }

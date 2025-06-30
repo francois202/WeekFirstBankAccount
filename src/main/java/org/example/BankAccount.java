@@ -1,6 +1,7 @@
 package org.example;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BankAccount {
@@ -13,6 +14,7 @@ public class BankAccount {
         this.accountNumber = accountNumber;
         this.balance = BigDecimal.valueOf(0);
         this.owner = owner;
+        this.transactions = new ArrayList<>();
     }
 
     public void deposit(BigDecimal amount) {
@@ -29,5 +31,13 @@ public class BankAccount {
 
     public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
+    }
+
+    public List<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public String getOwner() {
+        return owner.getName();
     }
 }
