@@ -1,9 +1,13 @@
 package org.example;
 
+import org.example.entity.BankAccount;
+import org.example.entity.User;
+import org.example.service.BankService;
+
 import java.math.BigDecimal;
 import java.util.List;
 
-public class Main {
+public class BankAccountApp {
     public static void main(String[] args) {
         User user = new User("user1", "Джон");
 
@@ -22,7 +26,7 @@ public class Main {
         System.out.println("Баланс счета ACC456: " + acc2.getBalance());
         System.out.println();
 
-        bankService.transfer(acc1, acc2, new BigDecimal("100"));
+        bankService.transfer(acc1, acc2, new BigDecimal("600"));
         bankService.transfer(acc1, acc2, new BigDecimal("200"));
 
         System.out.println("Баланс счета ACC123: " + acc1.getBalance());
