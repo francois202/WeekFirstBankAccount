@@ -1,12 +1,17 @@
 package org.example.entity;
 
 import org.example.enums.TranscationType;
+import org.example.validators.TransferValidator;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BankAccount {
+    /**
+     * Уникальный номер счета
+     */
+    private final String accountNumber;
     /**
      * Текущий баланс счета в валюте
      */
@@ -20,12 +25,15 @@ public class BankAccount {
      */
     private final List<Transaction> transactions;
 
+    TransferValidator transferValidator = new TransferValidator();
+
     /**
      * Конструктор класса BankAccount
-     * @param accountNumber - номер счета
-     * @param owner - владелец счета
+     * @param accountNumber номер счета
+     * @param owner владелец счета
      */
     public BankAccount(String accountNumber, User owner) {
+        this.accountNumber = accountNumber;
         this.balance = BigDecimal.ZERO;
         this.owner = owner;
         this.transactions = new ArrayList<>();
@@ -33,19 +41,21 @@ public class BankAccount {
 
     /**
      * Метод пополнения счета
-     * @param amount - кол-во денег для депозита
+     * @param amount кол-во денег для депозита
      */
     public void deposit(BigDecimal amount) {
-        Transaction transaction = new Transaction("id", amount, TranscationType.DEPOSIT,this, null);
+        transferValidator.validateAmount(amount);
+        Transaction transaction = new Transaction("id", amount, TranscationType.DEPOSIT,null, this);
         balance = balance.add(amount);
         transactions.add(transaction);
     }
 
     /**
      * Метод вывода денег со счета
-     * @param amount - кол-во денег для вывода
+     * @param amount кол-во денег для вывода
      */
     public void withdraw(BigDecimal amount) {
+        transferValidator.validateAmount(amount);
         Transaction transaction = new Transaction("id", amount, TranscationType.WITHDRAWAL, this, null);
         balance = balance.subtract(amount);
         transactions.add(transaction);
@@ -61,7 +71,7 @@ public class BankAccount {
 
     /**
      * Метод добавляет транзакцию в историю по счету
-     * @param transaction - транзакция
+     * @param transaction транзакция
      */
     public void addTransaction(Transaction transaction) {
         transactions.add(transaction);
@@ -76,10 +86,10 @@ public class BankAccount {
     }
 
     /**
-     * Метод возвращает владельца счета
-     * @return владелец счета
+     * Метод возвращает номер счета
+     * @return уникальный номер счета
      */
-    public String getOwner() {
-        return owner.getName();
+    public String getAccountNumber() {
+        return accountNumber;
     }
 }

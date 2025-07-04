@@ -11,10 +11,12 @@ import java.util.List;
 
 public class BankService {
 
+    TransferValidator transferValidator = new TransferValidator();
     /**
      * Метод создает новый счет
-     * @param user - имя пользователя
-     * @param accountNumber - номер счета
+     *
+     * @param user имя пользователя
+     * @param accountNumber номер счета
      */
     public void createAccount(User user, String accountNumber) {
         BankAccount bankAccount = new BankAccount(accountNumber, user);
@@ -23,35 +25,38 @@ public class BankService {
 
     /**
      * Метод создает новую транзакцию
-     * @param source - счет источник
-     * @param target - целевой счет, куда осуществляется перевод
-     * @param amount - сумма денег в переводе
+     *
+     * @param source счет источник
+     * @param target целевой счет, куда осуществляется перевод
+     * @param amount сумма денег в переводе
      */
     public void transfer(BankAccount source, BankAccount target, BigDecimal amount) {
-        Transaction transaction = new Transaction("id", amount, TranscationType.TRANSFER, source, target);
-
-        TransferValidator.validateCheck(source, amount);
+        transferValidator.checkTransfer(source, amount);
 
         source.withdraw(amount);
         target.deposit(amount);
+
+        Transaction transaction = new Transaction("id", amount, TranscationType.TRANSFER, source, target);
 
         source.addTransaction(transaction);
         target.addTransaction(transaction);
     }
 
     /**
-     Метод возвращает историю транзакций для указанного счета.
-     @param account счет пользователя
-     @return история транзакций
+     * Метод возвращает историю транзакций для указанного счета.
+     *
+     * @param account счет пользователя
+     * @return история транзакций
      */
     public List<Transaction> getTransactionHistory(BankAccount account) {
         return account.getTransactions();
     }
 
     /**
-     Метод возвращает общий баланс всех счетов пользователя.
-     @param user экземпляр пользователя
-     @return общий баланс
+     * Метод возвращает общий баланс всех счетов пользователя.
+     *
+     * @param user экземпляр пользователя
+     * @return общий баланс
      */
     public BigDecimal getTotalBalance(User user) {
         BigDecimal totalBalance = BigDecimal.ZERO;

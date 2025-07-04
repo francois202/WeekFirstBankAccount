@@ -5,6 +5,10 @@ import java.util.List;
 
 public class User {
     /**
+     * Идентификатор пользователя
+     */
+    private final String id;
+    /**
      * Имя пользователя
      */
     private final String name;
@@ -15,17 +19,18 @@ public class User {
 
     /**
      * Конструктор класса User
-     * @param id - айди пользователя
-     * @param name - имя пользователя
+     * @param id идентификатор пользователя
+     * @param name имя пользователя
      */
     public User(String id, String name) {
+        this.id = id;
         this.name = name;
         this.accounts = new ArrayList<>();
     }
 
     /**
      * Метод добавляет новый счет для пользователя
-     * @param account - экземляр счета
+     * @param account экземляр счета
      */
     public void addAccount(BankAccount account) {
         accounts.add(account);
@@ -36,14 +41,6 @@ public class User {
      * @return список счетов пользователя
      */
     public List<BankAccount> getAccounts() {
-        return accounts;
-    }
-
-    /**
-     * Метод возвращает имя пользователя
-     * @return имя пользователя
-     */
-    public String getName() {
-        return name;
+        return List.copyOf(accounts);
     }
 }

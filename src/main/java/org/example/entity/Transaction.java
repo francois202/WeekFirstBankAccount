@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class Transaction {
     /**
-     * Айди транзакции
+     * Идентификатор транзакции
      */
     private final String id;
     /**
@@ -33,11 +33,11 @@ public class Transaction {
 
     /**
      * Конструктор класса Transaction
-     * @param id - айди транзакции
-     * @param amount - сумма денег в транзакции
-     * @param type - тип транзакции
-     * @param sourceAccount - счет с которого проводится транзакция
-     * @param targetAccount - счет на который делается транзакция
+     * @param id айди транзакции
+     * @param amount сумма денег в транзакции
+     * @param type тип транзакции
+     * @param sourceAccount счет с которого проводится транзакция
+     * @param targetAccount счет на который делается транзакция
      */
     public Transaction(String id, BigDecimal amount, TranscationType type, BankAccount sourceAccount, BankAccount targetAccount) {
         this.id = id;
@@ -55,7 +55,8 @@ public class Transaction {
     @Override
     public String toString() {
         return String.format("%s || %s || %s || %s || %s || %s",
-                id, amount, type, date, sourceAccount.getOwner(),
-                targetAccount != null ? targetAccount.getOwner() : "");
+                id, amount, type, date,
+                sourceAccount != null ? sourceAccount.getAccountNumber() : "null",
+                targetAccount != null ? targetAccount.getAccountNumber() : "null");
     }
 }
