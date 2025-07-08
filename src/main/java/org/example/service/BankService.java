@@ -3,7 +3,7 @@ package org.example.service;
 import org.example.entity.BankAccount;
 import org.example.entity.Transaction;
 import org.example.entity.User;
-import org.example.enums.TranscationType;
+import org.example.enums.TransactionType;
 import org.example.validators.TransferValidator;
 
 import java.math.BigDecimal;
@@ -36,7 +36,7 @@ public class BankService {
         source.withdraw(amount);
         target.deposit(amount);
 
-        Transaction transaction = new Transaction("id", amount, TranscationType.TRANSFER, source, target);
+        Transaction transaction = new Transaction(amount, TransactionType.TRANSFER, source, target);
 
         source.addTransaction(transaction);
         target.addTransaction(transaction);

@@ -1,9 +1,10 @@
 package org.example.entity;
 
-import org.example.enums.TranscationType;
+import org.example.enums.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class Transaction {
     /**
@@ -17,7 +18,7 @@ public class Transaction {
     /**
      * Тип транзакции
      */
-    private final TranscationType type;
+    private final TransactionType type;
     /**
      * Дата и время транзакции
      */
@@ -33,14 +34,13 @@ public class Transaction {
 
     /**
      * Конструктор класса Transaction
-     * @param id айди транзакции
      * @param amount сумма денег в транзакции
      * @param type тип транзакции
      * @param sourceAccount счет с которого проводится транзакция
      * @param targetAccount счет на который делается транзакция
      */
-    public Transaction(String id, BigDecimal amount, TranscationType type, BankAccount sourceAccount, BankAccount targetAccount) {
-        this.id = id;
+    public Transaction(BigDecimal amount, TransactionType type, BankAccount sourceAccount, BankAccount targetAccount) {
+        this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.type = type;
         this.date = LocalDateTime.now();

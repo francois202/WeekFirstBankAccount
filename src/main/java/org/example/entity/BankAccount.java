@@ -1,6 +1,6 @@
 package org.example.entity;
 
-import org.example.enums.TranscationType;
+import org.example.enums.TransactionType;
 import org.example.validators.TransferValidator;
 
 import java.math.BigDecimal;
@@ -25,7 +25,7 @@ public class BankAccount {
      */
     private final List<Transaction> transactions;
 
-    TransferValidator transferValidator = new TransferValidator();
+    private final TransferValidator transferValidator = new TransferValidator();
 
     /**
      * Конструктор класса BankAccount
@@ -45,7 +45,7 @@ public class BankAccount {
      */
     public void deposit(BigDecimal amount) {
         transferValidator.validateAmount(amount);
-        Transaction transaction = new Transaction("id", amount, TranscationType.DEPOSIT,null, this);
+        Transaction transaction = new Transaction(amount, TransactionType.DEPOSIT,null, this);
         balance = balance.add(amount);
         transactions.add(transaction);
     }
@@ -55,8 +55,8 @@ public class BankAccount {
      * @param amount кол-во денег для вывода
      */
     public void withdraw(BigDecimal amount) {
-        transferValidator.validateAmount(amount);
-        Transaction transaction = new Transaction("id", amount, TranscationType.WITHDRAWAL, this, null);
+        transferValidator.checkTransfer(this, amount);
+        Transaction transaction = new Transaction(amount, TransactionType.WITHDRAWAL, this, null);
         balance = balance.subtract(amount);
         transactions.add(transaction);
     }
