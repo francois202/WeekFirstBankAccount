@@ -1,5 +1,7 @@
 package org.example.entity;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.example.enums.TransactionType;
 import org.example.validators.TransferValidator;
 
@@ -7,6 +9,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+@Setter
+@Getter
 public class BankAccount {
     /**
      * Уникальный номер счета
@@ -45,7 +49,7 @@ public class BankAccount {
      */
     public void deposit(BigDecimal amount) {
         transferValidator.validateAmount(amount);
-        Transaction transaction = new Transaction(amount, TransactionType.DEPOSIT,null, this);
+        Transaction transaction = new Transaction(amount, TransactionType.DEPOSIT, null,null, this);
         balance = balance.add(amount);
         transactions.add(transaction);
     }
@@ -56,17 +60,9 @@ public class BankAccount {
      */
     public void withdraw(BigDecimal amount) {
         transferValidator.checkTransfer(this, amount);
-        Transaction transaction = new Transaction(amount, TransactionType.WITHDRAWAL, this, null);
+        Transaction transaction = new Transaction(amount, TransactionType.WITHDRAWAL, null, this, null);
         balance = balance.subtract(amount);
         transactions.add(transaction);
-    }
-
-    /**
-     * Метод возвращает баланс на счете пользователя
-     * @return баланс на счете
-     */
-    public BigDecimal getBalance() {
-        return balance;
     }
 
     /**
@@ -83,13 +79,5 @@ public class BankAccount {
      */
     public List<Transaction> getTransactions() {
         return List.copyOf(transactions);
-    }
-
-    /**
-     * Метод возвращает номер счета
-     * @return уникальный номер счета
-     */
-    public String getAccountNumber() {
-        return accountNumber;
     }
 }

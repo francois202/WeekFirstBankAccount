@@ -39,5 +39,18 @@ public class BankAccountApp {
         System.out.println();
         System.out.println("Общий баланс для ACC123:");
         System.out.println(bankService.getTotalBalance(user));
+
+        acc1.deposit(new BigDecimal("10000"));
+
+        bankService.payment(acc1, "TAXI", new BigDecimal("200"));
+        bankService.payment(acc1, "OTHER", new BigDecimal("800"));
+
+        System.out.println("Вывод суммы потраченных средств на категорию TAXI за последний месяц со счета ACC123:");
+        System.out.println(bankService.getMonthlySpendingByCategory(acc1, "TAXI"));
+
+        System.out.println();
+        System.out.println("История транзакций для счета ACC123:");
+        bankService.getTransactionHistory(acc1).forEach(System.out::println);
+
     }
 }
