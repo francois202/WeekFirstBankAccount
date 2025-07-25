@@ -57,7 +57,7 @@ public class AnalyticsService {
 
         BigDecimal monthlySpending = BigDecimal.ZERO;
 
-        if (isValidCategory(category) || bankAccount == null) {
+        if (!isValidCategory(category) || bankAccount == null) {
             return BigDecimal.ZERO;
         }
 
@@ -87,13 +87,8 @@ public class AnalyticsService {
 
         for (BankAccount bankAccount : user.getAccounts()) {
             for (Transaction transaction : bankAccount.getTransactions()) {
-                if (transaction.getType().equals(TransactionType.PAYMENT) && transaction.getDate().isAfter(dateTimeMonthAgo)) {
-                    if (resultMap.containsKey(transaction.getCategory().name())) {
-                        resultMap.put(transaction.getCategory().name(), resultMap.get(transaction.getCategory().name()).add(transaction.getAmount()));
-                    }
-                    else {
-                        resultMap.put(transaction.getCategory().name(), transaction.getAmount());
-                    }
+                if (TransactionType.PAYMENT.equals(transaction.getType()) && transaction.getDate().isAfter(dateTimeMonthAgo)) {
+                    resultMap.merge(String.valueOf(transaction.getCategory()), transaction.getAmount(), BigDecimal::add);
                 }
             }
         }
@@ -120,14 +115,14 @@ public class AnalyticsService {
     public LinkedHashMap<String, List<Transaction>> getTransactionHistorySortedByAmount(User user) {
         LinkedHashMap<String, List<Transaction>> resultMap = new LinkedHashMap<>();
 
-        if (hasUserActiveAccounts(user)) {
+        if (!hasUserAccountsWithTransactions(user)) {
             return resultMap;
         }
 
         List<Transaction> allPayments = new ArrayList<>();
         for (BankAccount bankAccount : user.getAccounts()) {
             for (Transaction transaction : bankAccount.getTransactions()) {
-                if (transaction.getType().equals(TransactionType.PAYMENT)) {
+                if (TransactionType.PAYMENT.equals(transaction.getType())) {
                     allPayments.add(transaction);
                 }
             }
@@ -157,19 +152,17 @@ public class AnalyticsService {
     public List<Transaction> getLastNTransactions(User user, int n) {
         List<Transaction> listResult = new ArrayList<>();
 
-        if (hasUserActiveAccounts(user)) {
+        if (!hasUserAccountsWithTransactions(user)) {
             return listResult;
         }
 
         for (BankAccount account : user.getAccounts()) {
             listResult.addAll(account.getTransactions());
         }
-        if (listResult.size() > n) {
-            return listResult.subList(listResult.size() - n, listResult.size());
-        }
-        else {
-            return listResult;
-        }
+
+        listResult.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
+
+        return listResult.subList(Math.max(0, listResult.size() - n), listResult.size());
     }
 
     /**
@@ -182,13 +175,13 @@ public class AnalyticsService {
     public PriorityQueue<Transaction> getTopNLargestTransactions(User user, int n) {
         PriorityQueue<Transaction> queueAllPayments = new PriorityQueue<>(new TransactionAmountComparator());
 
-        if (hasUserActiveAccounts(user)) {
+        if (!hasUserAccountsWithTransactions(user)) {
             return queueAllPayments;
         }
 
         for (BankAccount bankAccount : user.getAccounts()) {
             for (Transaction transaction : bankAccount.getTransactions()) {
-                if (transaction.getType().equals(TransactionType.PAYMENT)) {
+                if (TransactionType.PAYMENT.equals(transaction.getType())) {
                     queueAllPayments.add(transaction);
                 }
             }

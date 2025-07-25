@@ -33,7 +33,7 @@ public class TransactionValidator {
             return false;
         }
         for (String category : categories) {
-            if (isValidCategory(category)) {
+            if (!isValidCategory(category)) {
                 return false;
             }
         }
@@ -41,12 +41,13 @@ public class TransactionValidator {
     }
 
     /**
-     * Метод проверяет если пользователь равен null или у него нет аккаунтов
+     * Метод проверяет есть ли транзакции по счету пользователя
      * @param user пользователь
+     * @return {@code true}
      */
-    public static boolean hasUserActiveAccounts(User user) {
+    public static boolean hasUserAccountsWithTransactions(User user) {
         if (user == null || user.getAccounts().isEmpty()) {
-            return true;
+            return false;
         }
 
         for (BankAccount account : user.getAccounts()) {

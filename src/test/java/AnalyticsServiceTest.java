@@ -13,9 +13,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AnalyticsServiceTest {
 
-    private static User user;
-    private static AnalyticsService analyticsService;
-    private static BankAccount acc1;
+    private User user;
+    private AnalyticsService analyticsService;
+    private BankAccount acc1;
+
+    private static final String TAXI_CATEGORY = "TAXI";
+    private static final String OTHER_CATEGORY = "OTHER";
 
     @BeforeEach
     public void setUpBeforeTest() {
@@ -28,10 +31,10 @@ public class AnalyticsServiceTest {
         acc1 = accounts.getFirst();
         acc1.deposit(new BigDecimal("10000"));
 
-        analyticsService.payment(acc1, "TAXI", new BigDecimal("200"));
-        analyticsService.payment(acc1, "TAXI", new BigDecimal("7000"));
-        analyticsService.payment(acc1, "OTHER", new BigDecimal("100"));
-        analyticsService.payment(acc1, "OTHER", new BigDecimal("800"));
+        analyticsService.payment(acc1, TAXI_CATEGORY, new BigDecimal("200"));
+        analyticsService.payment(acc1, TAXI_CATEGORY, new BigDecimal("7000"));
+        analyticsService.payment(acc1, OTHER_CATEGORY, new BigDecimal("100"));
+        analyticsService.payment(acc1, OTHER_CATEGORY, new BigDecimal("800"));
     }
 
     @Test
@@ -73,7 +76,9 @@ public class AnalyticsServiceTest {
 
     @Test
     public void testGetLastNTransactions() {
-        List<Transaction> result = analyticsService.getLastNTransactions(user, 2);
+        List<Transaction> result = analyticsService.getLastNTransactions(user, 8);
+
+        System.out.println(result);
 
         assertEquals(new BigDecimal("800"), result.getFirst().getAmount());
         assertEquals(TransactionType.WITHDRAWAL, result.getFirst().getType());
