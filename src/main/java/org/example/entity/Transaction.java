@@ -1,11 +1,16 @@
 package org.example.entity;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.example.enums.CategoryType;
 import org.example.enums.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+@Setter
+@Getter
 public class Transaction {
     /**
      * Идентификатор транзакции
@@ -19,6 +24,10 @@ public class Transaction {
      * Тип транзакции
      */
     private final TransactionType type;
+    /**
+     * Тип категории
+     */
+    private final CategoryType category;
     /**
      * Дата и время транзакции
      */
@@ -39,10 +48,11 @@ public class Transaction {
      * @param sourceAccount счет с которого проводится транзакция
      * @param targetAccount счет на который делается транзакция
      */
-    public Transaction(BigDecimal amount, TransactionType type, BankAccount sourceAccount, BankAccount targetAccount) {
+    public Transaction(BigDecimal amount, TransactionType type, CategoryType category, BankAccount sourceAccount, BankAccount targetAccount) {
         this.id = UUID.randomUUID().toString();
         this.amount = amount;
         this.type = type;
+        this.category = category;
         this.date = LocalDateTime.now();
         this.sourceAccount = sourceAccount;
         this.targetAccount = targetAccount;
