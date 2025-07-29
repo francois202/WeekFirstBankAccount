@@ -19,8 +19,7 @@ public class TransactionService {
      * @return список транзакций, удовлетворяющих условию
      */
     public List<Transaction> filterTransactions(User user, Predicate<Transaction> predicate) {
-
-        if (!hasUserAccountsWithTransactions(user)) {
+        if (!hasUserAccountsWithTransactions(user) || predicate == null) {
             return Collections.emptyList();
         }
 
@@ -38,8 +37,7 @@ public class TransactionService {
      * @return список строковых представлений транзакций
      */
     public List<String> transformTransactions(User user, Function<Transaction, String> function) {
-
-        if (!hasUserAccountsWithTransactions(user)) {
+        if (!hasUserAccountsWithTransactions(user) || function == null) {
             return Collections.emptyList();
         }
 
@@ -57,8 +55,7 @@ public class TransactionService {
      */
 
     public void processTransactions(User user, Consumer<Transaction> consumer) {
-
-        if (!hasUserAccountsWithTransactions(user)) {
+        if (!hasUserAccountsWithTransactions(user) || consumer == null) {
             return;
         }
 
@@ -74,6 +71,10 @@ public class TransactionService {
      * @return созданный список транзакций
      */
     public List<Transaction> createTransactionList(Supplier<List<Transaction>> supplier) {
+        if (supplier == null) {
+            return Collections.emptyList();
+        }
+
         return supplier.get();
     }
 
@@ -86,7 +87,14 @@ public class TransactionService {
      */
     public List<Transaction> mergeTransactionLists(List<Transaction> list1, List<Transaction> list2,
                                                    BiFunction<List<Transaction>, List<Transaction>, List<Transaction>> merger) {
-        return merger.apply(list1, list2);
+        if (merger == null) {
+            return Collections.emptyList();
+        }
+
+        return merger.apply(
+                list1 != null ? list1 : Collections.emptyList(),
+                list2 != null ? list2 : Collections.emptyList()
+        );
     }
 
 }
