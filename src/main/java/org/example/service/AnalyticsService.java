@@ -10,6 +10,7 @@ import org.example.validators.TransferValidator;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.example.validators.TransactionValidator.*;
 
@@ -30,7 +31,7 @@ public class AnalyticsService {
     }
 
     /**
-     * Метод создает новый платеж.
+     * Метод создает новый платеж
      *
      * @param source счет источник
      * @param category категория платежа
@@ -55,20 +56,16 @@ public class AnalyticsService {
      */
     public BigDecimal getMonthlySpendingByCategory(BankAccount bankAccount, String category) {
 
-        BigDecimal monthlySpending = BigDecimal.ZERO;
-
         if (!isValidCategory(category) || bankAccount == null) {
             return BigDecimal.ZERO;
         }
 
-        for (Transaction transaction : bankAccount.getTransactions()) {
-            if (TransactionType.PAYMENT.equals(transaction.getType()) && category.equals(transaction.getCategory().name())
-                && transaction.getDate().isAfter(dateTimeMonthAgo)) {
-                monthlySpending = monthlySpending.add(transaction.getAmount());
-            }
-        }
-
-        return monthlySpending;
+        return bankAccount.getTransactions().stream()
+                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+                .filter(transaction -> category.equals(transaction.getCategory().name()))
+                .filter(transaction -> transaction.getDate().isAfter(dateTimeMonthAgo))
+                .map(Transaction::getAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     /**
@@ -85,14 +82,14 @@ public class AnalyticsService {
             return resultMap;
         }
 
-        for (BankAccount bankAccount : user.getAccounts()) {
-            for (Transaction transaction : bankAccount.getTransactions()) {
-                if (TransactionType.PAYMENT.equals(transaction.getType()) && transaction.getDate().isAfter(dateTimeMonthAgo)) {
-                    resultMap.merge(String.valueOf(transaction.getCategory()), transaction.getAmount(), BigDecimal::add);
-                }
-            }
-        }
-        return resultMap;
+        return user.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+                .filter(transaction -> transaction.getDate().isAfter(dateTimeMonthAgo))
+                .filter(transaction -> categories.contains(String.valueOf(transaction.getCategory())))
+                .collect(Collectors.groupingBy(
+                        transaction -> String.valueOf(transaction.getCategory()),
+                        Collectors.reducing(BigDecimal.ZERO, Transaction::getAmount, BigDecimal::add)));
     }
 
     /**
@@ -119,27 +116,12 @@ public class AnalyticsService {
             return resultMap;
         }
 
-        List<Transaction> allPayments = new ArrayList<>();
-        for (BankAccount bankAccount : user.getAccounts()) {
-            for (Transaction transaction : bankAccount.getTransactions()) {
-                if (TransactionType.PAYMENT.equals(transaction.getType())) {
-                    allPayments.add(transaction);
-                }
-            }
-        }
-
-        for (Transaction transaction : allPayments) {
-            if (!resultMap.containsKey(transaction.getCategory().name())) {
-                resultMap.put(transaction.getCategory().name(), new ArrayList<>());
-            }
-            resultMap.get(transaction.getCategory().name()).add(transaction);
-        }
-
-        for (List<Transaction> transactions : resultMap.values()) {
-            transactions.sort(new TransactionAmountComparator());
-        }
-
-        return resultMap;
+        return user.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+                .sorted(Comparator.comparing(Transaction::getAmount))
+                .collect(Collectors.groupingBy(transaction -> transaction.getCategory().toString(),
+                        LinkedHashMap::new, Collectors.toList()));
     }
 
     /**
@@ -156,13 +138,12 @@ public class AnalyticsService {
             return listResult;
         }
 
-        for (BankAccount account : user.getAccounts()) {
-            listResult.addAll(account.getTransactions());
-        }
+        return user.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+                .sorted(Comparator.comparing(Transaction::getDate).reversed())
+                .limit(n)
+                .collect(Collectors.toList());
 
-        listResult.sort((t1, t2) -> t2.getDate().compareTo(t1.getDate()));
-
-        return listResult.subList(Math.max(0, listResult.size() - n), listResult.size());
     }
 
     /**
@@ -179,20 +160,11 @@ public class AnalyticsService {
             return queueAllPayments;
         }
 
-        for (BankAccount bankAccount : user.getAccounts()) {
-            for (Transaction transaction : bankAccount.getTransactions()) {
-                if (TransactionType.PAYMENT.equals(transaction.getType())) {
-                    queueAllPayments.add(transaction);
-                }
-            }
-        }
-
-        PriorityQueue<Transaction> queueResult = new PriorityQueue<>(new TransactionAmountComparator());
-        int count = Math.min(n, queueAllPayments.size());
-        for (int i = 0; i < count; i++) {
-            queueResult.add(queueAllPayments.poll());
-        }
-
-        return queueResult;
+        return user.getAccounts().stream()
+                .flatMap(bankAccount -> bankAccount.getTransactions().stream())
+                .filter(transaction -> TransactionType.PAYMENT.equals(transaction.getType()))
+                .sorted(Comparator.comparing(Transaction::getAmount).reversed())
+                .limit(n)
+                .collect(Collectors.toCollection(() -> new PriorityQueue<>(Comparator.comparing(Transaction::getAmount).reversed())));
     }
 }

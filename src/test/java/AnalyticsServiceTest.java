@@ -3,8 +3,8 @@ import org.example.entity.Transaction;
 import org.example.entity.User;
 import org.example.enums.TransactionType;
 import org.example.service.AnalyticsService;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -42,7 +42,7 @@ public class AnalyticsServiceTest {
 
         assertEquals(BigDecimal.valueOf(7200), analyticsService.getMonthlySpendingByCategory(acc1, "TAXI"));
     }
-    
+
     @Test
     public void testGetMonthlySpendingByCategoryInvalidCategory() {
 
@@ -94,6 +94,40 @@ public class AnalyticsServiceTest {
 
         assertEquals(new BigDecimal("7000"), result.poll().getAmount());
         assertEquals(new BigDecimal("800"), result.poll().getAmount());
+    }
+
+    @Test
+    public void testAnalyzePerformance() {
+
+        List<Transaction> transactions = acc1.getTransactions();
+
+        System.out.println("Количество транзакций: " + transactions.size() + "\n");
+
+        long startTime1 = System.currentTimeMillis();
+
+        transactions.stream()
+                .filter(transaction -> transaction.getType().equals(TransactionType.PAYMENT))
+                .map(Transaction::getAmount)
+                .filter(amount -> amount.compareTo(new BigDecimal("200")) > 0)
+                .sorted()
+                .forEach(transaction -> System.out.print(transaction + " "));
+
+        long endTime1 = System.currentTimeMillis();
+
+        System.out.println("\nЗатраченное время для обычных стримов: " + (endTime1 - startTime1) + " мс \n\n");
+
+        long startTime2 = System.currentTimeMillis();
+
+        transactions.parallelStream()
+                .filter(transaction -> transaction.getType().equals(TransactionType.PAYMENT))
+                .map(Transaction::getAmount)
+                .filter(amount -> amount.compareTo(new BigDecimal("200")) > 0)
+                .sorted()
+                .forEachOrdered(transaction -> System.out.print(transaction + " "));
+
+        long endTime2 = System.currentTimeMillis();
+
+        System.out.println("\nЗатраченное время для параллельных стримов: " + (endTime2 - startTime2) + " мс");
     }
 
 }
